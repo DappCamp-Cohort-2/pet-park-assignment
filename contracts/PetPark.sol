@@ -5,6 +5,9 @@ pragma solidity ^0.8.0;
 contract PetPark {
     address owner;
     mapping(address => uint) public borrower;
+    mapping(uint256 => uint256) public animalCounts;
+    mapping(address => uint256) usersAge;
+    mapping(address => uint256) usersGender;
 
     constructor(){
         owner = msg.sender;
@@ -13,31 +16,32 @@ contract PetPark {
     event Added(uint _id, uint _count);
     event Borrowed(uint _id);
 
-    uint fishCount = 0;
-    uint catCount = 0;
-    uint dogCount = 0;
-    uint rabbitCount = 0;
-    uint parrotCount = 0;
-
-
     function add(uint _id, uint _count) public {
         require(msg.sender == owner, "Not an owner");
         require (_id > 0 && _id < 6, "Invalid animal");
         if (_id == 1){
-            fishCount += 1;
+            animalCounts[1] += 1;
         } else if (_id == 2){
-            catCount += 1;
+            animalCounts[2] += 1;
         } else if (_id == 3){
-            dogCount += 1;
+            animalCounts[3] += 1;
         } else if (_id == 4){
-            rabbitCount += 1;
+            animalCounts[4] += 1;
         } else if (_id == 5){
-            parrotCount += 1;
+            animalCounts[5] += 1;
         }
         emit Added(_id, _count);
     }
 
     function borrow(uint _age,uint _gender, uint _id) public {
+        if (usersAge[msg.sender] == 0 && usersGender[msg.sender] == 0){
+            usersAge[msg.sender] = _age;
+            usersGender[msg.sender] = _gender;
+        } else {
+            require(usersAge[msg.sender] == _age, "Invalid Age");
+            require(usersGender[msg.sender] == _gender, "Invalid Gender");
+        }
+
         require(borrower[msg.sender] == 0, "Already adopted a pet");
         if (_gender == 1 && _age < 40 && _id == 2){
             revert("Invalid animal for women under 40");
@@ -49,24 +53,24 @@ contract PetPark {
         
 
         if (_id == 1){
-            require (fishCount > 0, "Selected animal not available");
-            fishCount -= 1;
+            require (animalCounts[1] > 0, "Selected animal not available");
+            animalCounts[1] -= 1;
             borrower[msg.sender] = 1;
         } else if (_id == 2){
-            require (catCount > 0, "Selected animal not available");
-            catCount -= 1;
+            require (animalCounts[2] > 0, "Selected animal not available");
+            animalCounts[2] -= 1;
             borrower[msg.sender] = 2;
         } else if (_id == 3){
-            require (dogCount > 0, "Selected animal not available");
-            dogCount -= 1;
+            require (animalCounts[3] > 0, "Selected animal not available");
+            animalCounts[3] -= 1;
             borrower[msg.sender] = 3;
         } else if (_id == 4){
-            require (rabbitCount > 0, "Selected animal not available");
-            rabbitCount -= 1;
+            require (animalCounts[4] > 0, "Selected animal not available");
+            animalCounts[4] -= 1;
             borrower[msg.sender] = 4;
         } else if (_id == 5){
-            require (parrotCount > 0, "Selected animal not available");
-            parrotCount -= 1;
+            require (animalCounts[5] > 0, "Selected animal not available");
+            animalCounts[5] -= 1;
             borrower[msg.sender] = 5;
         }
         
@@ -76,36 +80,36 @@ contract PetPark {
     function giveBackAnimal() public{
         require(borrower[msg.sender] > 0, "No borrowed pets");
         if (borrower[msg.sender] == 1){
-            fishCount += 1;
+            animalCounts[1] += 1;
         } else if (borrower[msg.sender] == 2){
-            catCount += 1;
+            animalCounts[2] += 1;
         } else if (borrower[msg.sender] == 3){
-            dogCount += 1;
+            animalCounts[3] += 1;
         } else if (borrower[msg.sender] == 4){
-            rabbitCount += 1;
+            animalCounts[4] += 1;
         } else if (borrower[msg.sender] == 5){
-            parrotCount += 1;
+            animalCounts[5] += 1;
         }
         borrower[msg.sender] = 0;
 
     }
 
-    function animalCount(uint _id) public view returns (uint){
-        if (_id == 1){
-            return fishCount;
-        } else if (_id == 2){
-            return catCount;
-        } else if (_id == 3){
-            return dogCount;
-        } else if (_id == 4){
-            return rabbitCount;
-        } else if (_id == 5){
-            return parrotCount;
-        } else {
-            return 0;
-        }
+    // function animalCount(uint _id) public view returns (uint){
+    //     if (_id == 1){
+    //         return fishCount;
+    //     } else if (_id == 2){
+    //         return catCount;
+    //     } else if (_id == 3){
+    //         return dogCount;
+    //     } else if (_id == 4){
+    //         return rabbitCount;
+    //     } else if (_id == 5){
+    //         return parrotCount;
+    //     } else {
+    //         return 0;
+    //     }
 
-    }
+    // }
 
     function print() public returns (uint){
         return borrower[msg.sender];
