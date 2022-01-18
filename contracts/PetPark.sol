@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 
@@ -7,7 +7,6 @@ contract PetPark {
   struct Borrower {
     uint age;
     uint gender;
-    uint animalCount;
     uint animalType;
   }
   mapping(uint => uint) public petPark;
@@ -41,7 +40,7 @@ contract PetPark {
                                                                       genderValidity(_gender, _age, _animalType)
                                                                       animalAvailability(_animalType)
                                                                       {
-    borrowers[msg.sender] = Borrower(_age, _gender + 1, 1, _animalType);
+    borrowers[msg.sender] = Borrower(_age, _gender + 1, 1);
     petPark[_animalType] -= 1;
     emit Borrowed(_animalType);
   }
@@ -87,12 +86,12 @@ contract PetPark {
   }
 
   modifier hasNoPets(address _address) {
-    require(borrowers[_address].animalCount == 0, "Already adopted a pet");
+    require(borrowers[_address].animalType == 0, "Already adopted a pet");
     _;
   }
 
   modifier hasBorrowedPets(address _address) {
-    require(borrowers[_address].animalCount > 0, "No borrowed pets");
+    require(borrowers[_address].animalType > 0, "No borrowed pets");
     _;
   }
 }
