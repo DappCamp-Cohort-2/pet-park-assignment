@@ -50,8 +50,8 @@ contract PetPark {
         require(borrowedAnimals[msg.sender] == AnimalType.None, "Already adopted a pet" );
         require(_animalType != AnimalType.None, "Invalid animal type");
         require(animalCounts[_animalType] > 0, "Selected animal not available");
-        require(_gender == Gender.Female || _animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "Invalid animal for men");
-        require(_gender == Gender.Male || _age > 40 || _animalType != AnimalType.Cat, "Invalid animal for women under 40");
+        require(_gender != Gender.Male || _animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "Invalid animal for men");
+        require(_gender != Gender.Female || _age > 40 || _animalType != AnimalType.Cat, "Invalid animal for women under 40");
 
         animalCounts[_animalType] -= 1;
         borrowedAnimals[msg.sender] = _animalType;
