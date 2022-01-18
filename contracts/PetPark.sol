@@ -55,7 +55,7 @@ contract PetPark {
 
     function borrow (uint _age, Gender _gender, AnimalType _type) public {
         if (!isValidAnimalType(_type)) {
-            revert("Invalid Animal");
+            revert("Invalid animal type");
         }
         if (_age == 0) {
             revert("Invalid Age");
@@ -69,7 +69,7 @@ contract PetPark {
                 revert("Invalid Age");
             }
             if (_borrowerGender[borrower] != _gender) {
-                revert("genderfluid");
+                revert("Invalid Gender");
             }
         }
         else {
@@ -95,14 +95,17 @@ contract PetPark {
         // Men can only borrow dogs and fish
         if (_gender == Gender.Male) {
             if ( ! ((_type == AnimalType.Dog) || (_type == AnimalType.Fish)) ) {
-                revert("Selected animal not available");
+                revert("Invalid animal for men");
             }
         }
         else { // assume Gender.Female
             if (_age < 40 && _type == AnimalType.Cat) {
-                revert("no early cat ladies!");
+                revert("Invalid animal for women under 40");
             }
         }
+
+        _borrowedAnimals[_type]++;
+
         emit Borrowed(_type);
     }
 
@@ -120,6 +123,6 @@ contract PetPark {
     }
 
     function animalCounts (AnimalType _type)  public view returns (uint) {
-        return _totalAnimals[_type];
+        return _totalAnimals[_type] - _borrowedAnimals[_type];
     }
 }
