@@ -31,7 +31,7 @@ contract PetPark {
     }
 
     
-    function borrow(uint8 age, uint8 gender, uint8 animaltype) public { // 24, 1, 2
+    function borrow(uint8 age, uint8 gender, uint8 animaltype) public {
         require(gender <= 1, "Invalid Gender");
         require(age > 0, "Invalid Age" );
         require(0 < animaltype && animaltype <= 5, "Invalid animal type");
@@ -70,7 +70,7 @@ contract PetPark {
       uint8 _animaltype = animaltypeBorrowed[msg.sender];
       animalCounts[_animaltype]++;
       hasBorrowed[msg.sender] == false;
-      
+
       emit Returned(_animaltype);
     }
 
