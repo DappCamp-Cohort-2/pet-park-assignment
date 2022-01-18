@@ -41,7 +41,8 @@ contract PetPark {
     }
 
     function isValidAnimalType(AnimalType _type) public pure returns (bool) {
-        return (uint256(_type) <= uint256(AnimalType.Parrot));
+        return ( (uint256(_type) <= uint256(AnimalType.Parrot) )
+              && (uint256(_type) >  uint256(AnimalType.None  ) ) );
     }
 
     function add(AnimalType _type, uint256 _count) public onlyOwner {
@@ -53,9 +54,9 @@ contract PetPark {
     }
 
     function borrow (uint _age, Gender _gender, AnimalType _type) public {
-        //if (!isValidAnimalType(_type)) {
-        //    revert("Invalid Animal");
-        //}
+        if (!isValidAnimalType(_type)) {
+            revert("Invalid Animal");
+        }
         if (_age == 0) {
             revert("Invalid Age");
         }
