@@ -26,15 +26,6 @@ contract PetPark {
 
     constructor () {
         owner = msg.sender;
-        
-        animal[1] = "Fish";       //AnimalType: 1
-        animal[2] = "Cat";        //AnimalType: 2
-        animal[3] = "Dog";        //AnimalType: 3
-        animal[4] = "Rabbit";     //AnimalType: 4
-        animal[5] = "Parrot";     //AnimalType: 5
-        gender[0] = "male";       //Gender: 0
-        gender[1] = "female";     //Gender: 1
-        
     }
 
     event Added(string animaltype, uint count);
