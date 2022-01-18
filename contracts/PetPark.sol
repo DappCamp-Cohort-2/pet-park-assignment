@@ -35,7 +35,7 @@ contract PetPark {
     return petPark[_animalType];
   }
 
-  function borrow(uint _age, uint _gender, uint _animalType) external nonZeroAge(_age) animalTypeValidity(_animalType) genderValidity(msg.sender, _gender, _age, _animalType) hasNoPets(msg.sender) animalAvailability(_animalType) {
+  function borrow(uint _age, uint _gender, uint _animalType) external nonZeroAge(_age) animalTypeValidity(_animalType) checkPreviousRequests(msg.sender, _gender, _age) hasNoPets(msg.sender) genderValidity(_gender, _age, _animalType) animalAvailability(_animalType) {
     borrowers[msg.sender] = Borrower(_age, _gender + 1, 1, _animalType);
     petPark[_animalType] -= 1;
     emit Borrowed(_animalType);
@@ -47,17 +47,20 @@ contract PetPark {
     emit Returned(_animalType);
   }
 
-  modifier genderValidity(address _address, uint _gender, uint _age, uint _animalType) {
+  modifier checkPreviousRequests(address _address, uint _gender, uint _age) {
     if (borrowers[_address].gender != 0 && borrowers[_address].gender != (_gender + 1)) {
       revert('Invalid Gender');
     }
     else if (borrowers[_address].age != 0 && borrowers[_address].age != _age) {
       revert('Invalid Age');
     }
-    else if (_gender == 0 && !((_animalType == 1) || _animalType == 3)) {
+    _;
+  }
+
+  modifier genderValidity(uint _gender, uint _age, uint _animalType) {
+    if (_gender == 0 && !(_animalType == 1 || _animalType == 3)) {
       revert("Invalid animal for men");
-    }
-    else if (_gender == 1 && (_age < 40 && _animalType == 2)) {
+    } else if (_gender == 1 && (_age < 40 && _animalType == 2)) {
       revert("Invalid animal for women under 40");
     }
     _;
