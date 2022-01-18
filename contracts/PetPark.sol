@@ -55,8 +55,6 @@ contract PetPark {
             require(identity.gender == _gender, "Invalid Gender");
             require(identity.age == _age, "Invalid Age");
         }
-        require(identity.gender == _gender, "Invalid Age");
-        require(identity.gender == _gender, "Invalid Age");
         require(_animalType != AnimalType.None, "Invalid animal type");
         uint inventory = animalCounts[_animalType];
         require(inventory > 0, "Selected animal not available");
@@ -66,7 +64,7 @@ contract PetPark {
             // Men can only borrow dog and fish
             require(_animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "Invalid animal for men");
         }
-        animalCounts[_animalType] = animalCounts[_animalType] - 1;
+        animalCounts[_animalType]--;
         loanedAnimals[msg.sender] = _animalType;
         identities[msg.sender] = Identity(_gender, _age);
         emit Borrowed(_animalType);
