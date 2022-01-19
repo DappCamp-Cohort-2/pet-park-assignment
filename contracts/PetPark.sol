@@ -4,6 +4,11 @@ pragma solidity ^0.8.0;
 contract PetPark {
     address owner;
 
+    struct AddressInfo {
+        uint age;
+        uint gender;
+    }
+
     struct Animal {
         uint animalType;
     }
@@ -12,8 +17,7 @@ contract PetPark {
 
     mapping (uint => uint) unborrowedAnimals;
     mapping (address => uint) borrowedAnimalByAddress;
-    mapping (address => uint) addressToAge;
-    mapping (address => uint) addressToGender;
+    mapping (address => AddressInfo) addressInfo;
     mapping (address => bool) hasSetAddressDetails;
 
     event Added(uint animalType, uint count);
@@ -69,8 +73,8 @@ contract PetPark {
     }
 
     modifier validateOwnerDetails(uint age, uint gender) {
-        require(!hasSetAddressDetails[msg.sender] || addressToAge[msg.sender] == age, "Invalid Age");
-        require(!hasSetAddressDetails[msg.sender] || addressToGender[msg.sender] == gender, "Invalid Gender");
+        require(!hasSetAddressDetails[msg.sender] || addressInfo[msg.sender].age == age, "Invalid Age");
+        require(!hasSetAddressDetails[msg.sender] || addressInfo[msg.sender].gender == gender, "Invalid Gender");
         _;
     }
 
@@ -88,8 +92,7 @@ contract PetPark {
 
     function borrow(uint age, uint gender, uint animalType) external validateAge(age) validateAnimalType(animalType, "Invalid animal type") validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
         if (!hasSetAddressDetails[msg.sender]) {
-            addressToAge[msg.sender] = age;
-            addressToGender[msg.sender] = gender;
+            addressInfo[msg.sender] = AddressInfo(age, gender);
             hasSetAddressDetails[msg.sender] = true;
         }
         borrowedAnimalByAddress[msg.sender] = animalType;
