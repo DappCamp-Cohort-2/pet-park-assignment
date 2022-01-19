@@ -56,3 +56,5 @@ Complete this contract with following specifications for each function
 
 -   The error strings (mentioned in revert statement) must be same as the ones mentioned in tests.
 -   Use modifier where appropriate.
+
+- if you receive error `ERR_OSSL_EVP_UNSUPPORTED` consider running `export NODE_OPTIONS=--openssl-legacy-provider` as a quick fix

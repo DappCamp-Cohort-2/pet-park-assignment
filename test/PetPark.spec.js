@@ -136,6 +136,7 @@ describe("PetPark", function () {
 					.borrow(24, Gender.Female, AnimalType.Fish)
 			).to.be.revertedWith("Invalid Gender");
 		});
+	});
 
 		it("should emit borrowed event when valid details are provided", async function () {
 			await petPark.add(AnimalType.Fish, 5);
@@ -163,7 +164,6 @@ describe("PetPark", function () {
 
 			expect(originalPetCount).to.equal(reducedPetCount + 1);
 		});
-	});
 
 	describe("giveBackAnimal", function () {
 		it("should revert when caller has never borrowed a pet", async function () {
