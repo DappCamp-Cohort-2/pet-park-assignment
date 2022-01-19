@@ -5,7 +5,7 @@ pragma solidity ^0.8.0;
 contract PetPark {
     enum AnimalType { NONE, FISH, CAT, DOG, RABBIT, PARROT }
     enum GenderType { MALE, FEMALE }
-    mapping(AnimalType => uint) animals;
+    mapping(AnimalType => uint) public animals;
     address public owner = msg.sender; // Set the transaction sender as the owner of the contract.
 
     struct Borrower {
@@ -13,7 +13,7 @@ contract PetPark {
         GenderType gender;       
         AnimalType animal; 
     }
-    mapping(address => Borrower) borrowers;
+    mapping(address => Borrower) public borrowers;
 
     // Events declaration
     event Added(AnimalType, uint);
@@ -52,8 +52,9 @@ contract PetPark {
     function borrow(uint8 _age, GenderType _gender, AnimalType _type)
         public
     {
-        if(_age == 0)
+        if(_age == 0) {
             revert("Invalid Age");
+        }
 
         if(_type == AnimalType.NONE)
             revert("Invalid animal type");
@@ -61,24 +62,26 @@ contract PetPark {
         if(animals[_type] == 0)
             revert("Selected animal not available");
 
-        if(borrowers[msg.sender].age != 0)
-            revert("Already adopted a pet");
-
         if(_gender == GenderType.MALE) {
-            if(_type != AnimalType.DOG && _type != AnimalType.FISH)
-                revert("Invalid animal for men");
-        }        
+            if (_type != AnimalType.DOG)
+                if(_type != AnimalType.FISH)
+                    revert("Invalid animal for men");
+        }       
 
         if(_gender == GenderType.FEMALE) {
-            if(borrowers[msg.sender].age < 40 && _type == AnimalType.CAT)
+            if(_age < 40 && _type == AnimalType.CAT)
                 revert("Invalid animal for women under 40");
         }
 
-        if(borrowers[msg.sender].age != _age)
-            revert("Invalid Age");
+        if(borrowers[msg.sender].age != 0) {
+            if(borrowers[msg.sender].age != _age)
+                revert("Invalid Age");
         
-        if(borrowers[msg.sender].gender != _gender)
-            revert("Invalid Gender");
+            if(borrowers[msg.sender].gender != _gender)
+                revert("Invalid Gender");
+
+            revert("Already adopted a pet");
+        }
 
         borrowers[msg.sender] = Borrower(_age, _gender, _type);
         animals[_type] -= 1;
