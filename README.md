@@ -28,12 +28,12 @@ Complete this contract with following specifications for each function
     -   Emit event `Borrowed` with parameter `Animal Type`.
 
 -   giveBackAnimal
-    -   Takes `Animal Type` as parameter.
     -   Throw an error if user hasn't borrowed before.
     -   Emit event `Returned` with parameter `Animal Type`.
 
 ## Evaluation
 
+-   Create a fork of this repo
 -   Create a new branch with your name. You can use the following command
 
     ```
@@ -50,7 +50,7 @@ Complete this contract with following specifications for each function
     ```
     npm test
     ```
--   Pushing your changes must automatically run a github workflow to run tests against your contract.
+-   Create a pull request from your forked repo to main branch of original repo to run the github workflow.
 
 ## Note
 
