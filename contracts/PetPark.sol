@@ -76,7 +76,7 @@ contract PetPark {
     }
 
     modifier validateAge(uint age) {
-        require(age != 0, "Invalid Age");
+        require(age > 0, "Invalid Age");
         _;
     }
 
