@@ -19,14 +19,20 @@ contract PetPark is Ownable {
         Female
     }
     event Added(AnimalType animalType, uint256 count);
+    event Borrowed(AnimalType animalType);
 
     struct Animal {
         uint256 count;
         AnimalType animalType;
     }
+    struct Person {
+        uint256 age;
+        Gender gender;
+    }
 
     mapping(address => AnimalType) public borrowerAddressToAnimalType;
     mapping(AnimalType => uint256) public AnimalTypeCount;
+    mapping(address => Person) public AddressToPerson;
 
     function add(AnimalType _animalType, uint256 _count) public onlyOwner {
         require(_animalType != AnimalType.None, "Invalid animal");
@@ -36,11 +42,23 @@ contract PetPark is Ownable {
         emit Added(_animalType, _count);
     }
 
+    modifier isSamePerson(uint256 _age, Gender _gender) {
+        // TODO: Check if person already set better
+        if (AddressToPerson[msg.sender].age > 0) {
+            require(
+                AddressToPerson[msg.sender].gender == _gender,
+                "Invalid Gender"
+            );
+            require(AddressToPerson[msg.sender].age == _age, "Invalid Age");
+        }
+        _;
+    }
+
     function borrow(
         uint256 _age,
         Gender _gender,
         AnimalType _animalType
-    ) public {
+    ) public isSamePerson(_age, _gender) {
         require(_age > 0, "Invalid Age");
         require(_animalType != AnimalType.None, "Invalid animal type");
         require(
@@ -69,6 +87,8 @@ contract PetPark is Ownable {
 
         borrowerAddressToAnimalType[msg.sender] = _animalType;
         AnimalTypeCount[_animalType] -= 1;
+        AddressToPerson[msg.sender] = Person({age: _age, gender: _gender});
+        emit Borrowed(_animalType);
     }
 
     function giveBackAnimal() public {
