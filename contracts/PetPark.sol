@@ -39,7 +39,7 @@ contract PetPark {
     _;
   }
 
-  function add(AnimalType _animalType, uint256 _count) public onlyOwner {
+  function add(AnimalType _animalType, uint256 _count) external onlyOwner {
     require(_animalType != AnimalType.None, "Invalid animal");
     require(_count != 0, "Can't add 0 animals");
 
@@ -52,7 +52,7 @@ contract PetPark {
    * @notice A park member (address) can borrow a single animal at the same time
    * @dev This method also creates a new park member if the msg.sender address didn't borrow before. 
    */
-  function borrow(uint256 _providedAge, Gender _providedGender, AnimalType _animalType) public validateAge(_providedAge) {
+  function borrow(uint256 _providedAge, Gender _providedGender, AnimalType _animalType) external validateAge(_providedAge) {
     Member memory borrower = parkMembers[msg.sender];
     bool isParkMember = borrower.age != 0;
 
@@ -86,7 +86,7 @@ contract PetPark {
     emit Borrowed(_animalType);
   }
 
-  function giveBackAnimal() public {
+  function giveBackAnimal() external {
     require(currentBorrowings[msg.sender] != AnimalType.None, "No borrowed pets");
 
     AnimalType _animalType = currentBorrowings[msg.sender];
