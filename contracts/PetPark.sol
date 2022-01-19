@@ -1,7 +1,9 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
-
+/// @title A pet park for borrowing pets
+/// @author Marci Detwiller
+/// @notice Borrow pets but only one at a time!
 contract PetPark {
 
     struct Borrower {
@@ -11,7 +13,6 @@ contract PetPark {
         uint currentAnimal;
     }
 
-    // AnimalTypes are Fish (1), Cat (2), Dog (3), Rabbit (4), Parrot (5)
     mapping (uint => uint) animalsInPark;
     mapping (address => Borrower) borrowers;
     address public owner;
@@ -29,14 +30,18 @@ contract PetPark {
         _;
     }
 
+    /// @param _animalType: Animal types are Fish (1), Cat (2), Dog (3), Rabbit (4), Parrot (5)
+    /// @param _count: Number to add
     function add(uint _animalType, uint _count) public onlyOwner {
         require((_animalType < 6) && (_animalType !=0), "Invalid animal");
         animalsInPark[_animalType] += _count;
         emit Added(_animalType, _count);
     }
 
+    /// @param _age: Age of borrower
+    /// @param _gender: Gender of borrower (Male = 0, Female = 1)
+    /// @param _animalType: Animal types are Fish (1), Cat (2), Dog (3), Rabbit (4), Parrot (5)
     function borrow(uint _age, uint _gender, uint _animalType) public {
-
         Borrower storage b = borrowers[msg.sender];
 
         require((_animalType < 6) && (_animalType != 0), "Invalid animal type");
@@ -48,7 +53,7 @@ contract PetPark {
         }
         
         require((b.currentAnimal == 0), "Already adopted a pet");
-        // Gender Male (0), Female (1)
+
         if (_gender == 0) {
             require((_animalType == 1) || (_animalType == 3), "Invalid animal for men");
         } else if (_age < 40) {
@@ -56,11 +61,6 @@ contract PetPark {
         }
 
         require((animalsInPark[_animalType] > 0), "Selected animal not available");
-
-        // if (b.currentAnimal != 0) {
-        //     // give back an animal to borrow a new one
-        //     giveBackAnimal();
-        // }
 
         animalsInPark[_animalType] -= 1;
         b.currentAnimal = _animalType;
@@ -75,13 +75,15 @@ contract PetPark {
 
     function giveBackAnimal() public {
         Borrower storage b = borrowers[msg.sender];
-        require(b.borrowed, "No borrowed pets");
+        require((b.currentAnimal != 0), "No borrowed pets");
         animalsInPark[b.currentAnimal] += 1;
         uint returnedAnimal = b.currentAnimal;
         b.currentAnimal = 0;
         emit Returned(returnedAnimal);
     }
 
+    /// @param _animalType: Animal types are Fish (1), Cat (2), Dog (3), Rabbit (4), Parrot (5)
+    /// @return The number of animals of that type available in the park.
     function animalCounts(uint _animalType) public view returns (uint) {
         return animalsInPark[_animalType];
     }
