@@ -28,15 +28,9 @@ contract PetPark {
         _;
     }
 
-    modifier validateAnimalTypeForAdd(uint animalType) {
-        require(animalType > 0, "Invalid animal");
-        require(animalType < 6, "Invalid animal");
-        _;
-    }
-
-    modifier validateAnimalType(uint animalType) {
-        require(animalType > 0, "Invalid animal type");
-        require(animalType < 6, "Invalid animal type");
+    modifier validateAnimalType(uint animalType, string memory errorMessage) {
+        require(animalType > 0, errorMessage);
+        require(animalType < 6, errorMessage);
         _;
     }
 
@@ -85,14 +79,14 @@ contract PetPark {
         unborrowedAnimals[_animalType] = unborrowedAnimals[_animalType] + 1;
     }
 
-    function add(uint animalType, uint count) external onlyOwner validateAnimalTypeForAdd(animalType) {
+    function add(uint animalType, uint count) external onlyOwner validateAnimalType(animalType, "Invalid animal") {
         for (uint i = 0; i < count; i++) {
             _createAnimal(animalType);
         }
         emit Added(animalType, count);
     }
 
-    function borrow(uint age, uint gender, uint animalType) external validateAge(age) validateAnimalType(animalType) validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
+    function borrow(uint age, uint gender, uint animalType) external validateAge(age) validateAnimalType(animalType, "Invalid animal type") validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
         addressToAge[msg.sender] = age;
         addressToGender[msg.sender] = gender;
         hasSetAddressDetails[msg.sender] = true;
