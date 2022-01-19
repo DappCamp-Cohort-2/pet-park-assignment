@@ -16,11 +16,11 @@ contract PetPark {
     uint256 age;
   }
 
-  mapping (AnimalType => uint256) animalCount;
+  mapping (AnimalType => uint256) public animalCounts;
   mapping (address => AnimalType) currentBorrowings;
   mapping (address => Member) parkMembers;
 
-  event Added(AnimalType animalType, uint256 animalCount);
+  event Added(AnimalType animalType, uint256 animalCounts);
   event Borrowed(AnimalType animalType);
   event Returned(AnimalType animalType);
 
@@ -43,7 +43,7 @@ contract PetPark {
     require(_animalType != AnimalType.None, "Invalid animal");
     require(_count != 0, "Can't add 0 animals");
 
-    animalCount[_animalType] += _count;
+    animalCounts[_animalType] += _count;
 
     emit Added(_animalType, _count);
   }
@@ -69,7 +69,7 @@ contract PetPark {
     }
 
     require(_animalType != AnimalType.None, "Invalid animal type");
-    require(animalCount[_animalType] >= 1, "Selected animal not available");
+    require(animalCounts[_animalType] >= 1, "Selected animal not available");
     require(currentBorrowings[msg.sender] == AnimalType.None, "Already adopted a pet");
 
     if (_providedGender == Gender.Male) {
@@ -81,7 +81,7 @@ contract PetPark {
     }
 
     currentBorrowings[msg.sender] = _animalType;
-    animalCount[_animalType] -= 1;
+    animalCounts[_animalType] -= 1;
 
     emit Borrowed(_animalType);
   }
@@ -92,14 +92,8 @@ contract PetPark {
     AnimalType _animalType = currentBorrowings[msg.sender];
 
     delete currentBorrowings[msg.sender];
-    animalCount[_animalType] += 1;
+    animalCounts[_animalType] += 1;
 
     emit Returned(_animalType);
-  }
-
-  function animalCounts(AnimalType _animalType) public view returns (uint256) {
-    require(_animalType != AnimalType.None, "Invalid animal type");
-
-    return animalCount[_animalType];
   }
 }
