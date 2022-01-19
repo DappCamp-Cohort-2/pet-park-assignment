@@ -60,7 +60,17 @@ contract PetPark {
             revert("Invalid animal type");
 
         if(animals[_type] == 0)
-            revert("Selected animal not available");
+            revert("Selected animal not available");        
+
+        if(borrowers[msg.sender].age != 0) {
+            if(borrowers[msg.sender].age != _age)
+                revert("Invalid Age");
+        
+            if(borrowers[msg.sender].gender != _gender)
+                revert("Invalid Gender");
+
+            revert("Already adopted a pet");
+        }
 
         if(_gender == GenderType.MALE) {
             if (_type != AnimalType.DOG)
@@ -71,16 +81,6 @@ contract PetPark {
         if(_gender == GenderType.FEMALE) {
             if(_age < 40 && _type == AnimalType.CAT)
                 revert("Invalid animal for women under 40");
-        }
-
-        if(borrowers[msg.sender].age != 0) {
-            if(borrowers[msg.sender].age != _age)
-                revert("Invalid Age");
-        
-            if(borrowers[msg.sender].gender != _gender)
-                revert("Invalid Gender");
-
-            revert("Already adopted a pet");
         }
 
         borrowers[msg.sender] = Borrower(_age, _gender, _type);
