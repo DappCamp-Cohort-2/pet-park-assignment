@@ -38,10 +38,8 @@ contract PetPark {
 
     function add(AnimalType _type, uint _count)
         public
+        onlyOwner
     {
-        if(msg.sender != owner)
-            revert("Not an owner");
-
         if(_type == AnimalType.NONE)
             revert("Invalid animal");
 
