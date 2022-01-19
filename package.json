@@ -11,5 +11,8 @@
 	"scripts": {
 		"compile": "npx hardhat compile",
 		"test": "npx hardhat test"
+	},
+	"dependencies": {
+		"node-addon-api": "^4.2.0"
 	}
 }
