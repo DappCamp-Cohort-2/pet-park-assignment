@@ -10,6 +10,7 @@
 	},
 	"scripts": {
 		"compile": "npx hardhat compile",
-		"test": "npx hardhat test"
+		"test": "npx hardhat test",
+		"runScript": "npx hardhat run scripts/run.js"
 	}
 }
