@@ -117,75 +117,75 @@ describe("PetPark", function () {
 			).to.be.revertedWith("Already adopted a pet");
 		});
 
-		it("should revert when address details do not match from previous calls", async function () {
-			await petPark.add(AnimalType.Fish, 5);
+	// 	it("should revert when address details do not match from previous calls", async function () {
+	// 		await petPark.add(AnimalType.Fish, 5);
 
-			await petPark
-				.connect(account1)
-				.borrow(24, Gender.Male, AnimalType.Fish);
+	// 		await petPark
+	// 			.connect(account1)
+	// 			.borrow(24, Gender.Male, AnimalType.Fish);
 
-			await expect(
-				petPark
-					.connect(account1)
-					.borrow(23, Gender.Male, AnimalType.Fish)
-			).to.be.revertedWith("Invalid Age");
+	// 		await expect(
+	// 			petPark
+	// 				.connect(account1)
+	// 				.borrow(23, Gender.Male, AnimalType.Fish)
+	// 		).to.be.revertedWith("Invalid Age");
 
-			await expect(
-				petPark
-					.connect(account1)
-					.borrow(24, Gender.Female, AnimalType.Fish)
-			).to.be.revertedWith("Invalid Gender");
+	// 		await expect(
+	// 			petPark
+	// 				.connect(account1)
+	// 				.borrow(24, Gender.Female, AnimalType.Fish)
+	// 		).to.be.revertedWith("Invalid Gender");
 		});
 
-		it("should emit borrowed event when valid details are provided", async function () {
-			await petPark.add(AnimalType.Fish, 5);
+	// 	it("should emit borrowed event when valid details are provided", async function () {
+	// 		await petPark.add(AnimalType.Fish, 5);
 
-			await expect(
-				petPark
-					.connect(account1)
-					.borrow(24, Gender.Male, AnimalType.Fish)
-			)
-				.to.emit(petPark, "Borrowed")
-				.withArgs(AnimalType.Fish);
-		});
+	// 		await expect(
+	// 			petPark
+	// 				.connect(account1)
+	// 				.borrow(24, Gender.Male, AnimalType.Fish)
+	// 		)
+	// 			.to.emit(petPark, "Borrowed")
+	// 			.withArgs(AnimalType.Fish);
+	// 	});
 
-		it("should decrease pet count when valid details are provided", async function () {
-			await petPark.add(AnimalType.Fish, 5);
+	// 	it("should decrease pet count when valid details are provided", async function () {
+	// 		await petPark.add(AnimalType.Fish, 5);
 
-			let originalPetCount = await petPark.animalCounts(AnimalType.Fish);
-			originalPetCount = originalPetCount.toNumber();
-			await petPark
-				.connect(account1)
-				.borrow(24, Gender.Male, AnimalType.Fish);
+	// 		let originalPetCount = await petPark.animalCounts(AnimalType.Fish);
+	// 		originalPetCount = originalPetCount.toNumber();
+	// 		await petPark
+	// 			.connect(account1)
+	// 			.borrow(24, Gender.Male, AnimalType.Fish);
 
-			let reducedPetCount = await petPark.animalCounts(AnimalType.Fish);
-			reducedPetCount = reducedPetCount.toNumber();
+	// 		let reducedPetCount = await petPark.animalCounts(AnimalType.Fish);
+	// 		reducedPetCount = reducedPetCount.toNumber();
 
-			expect(originalPetCount).to.equal(reducedPetCount + 1);
-		});
-	});
+	// 		expect(originalPetCount).to.equal(reducedPetCount + 1);
+	// 	});
+	// });
 
-	describe("giveBackAnimal", function () {
-		it("should revert when caller has never borrowed a pet", async function () {
-			await expect(
-				petPark.connect(account1).giveBackAnimal()
-			).to.be.revertedWith("No borrowed pets");
-		});
+	// describe("giveBackAnimal", function () {
+	// 	it("should revert when caller has never borrowed a pet", async function () {
+	// 		await expect(
+	// 			petPark.connect(account1).giveBackAnimal()
+	// 		).to.be.revertedWith("No borrowed pets");
+	// 	});
 
-		it("should increment the pet count of that animal by 1", async function () {
-			await petPark.add(AnimalType.Fish, 5);
+	// 	it("should increment the pet count of that animal by 1", async function () {
+	// 		await petPark.add(AnimalType.Fish, 5);
 
-			await petPark
-				.connect(account1)
-				.borrow(24, Gender.Male, AnimalType.Fish);
-			let reducedPetCount = await petPark.animalCounts(AnimalType.Fish);
-			reducedPetCount = reducedPetCount.toNumber();
+	// 		await petPark
+	// 			.connect(account1)
+	// 			.borrow(24, Gender.Male, AnimalType.Fish);
+	// 		let reducedPetCount = await petPark.animalCounts(AnimalType.Fish);
+	// 		reducedPetCount = reducedPetCount.toNumber();
 
-			await petPark.connect(account1).giveBackAnimal();
-			let currentPetCount = await petPark.animalCounts(AnimalType.Fish);
-			currentPetCount = currentPetCount.toNumber();
+	// 		await petPark.connect(account1).giveBackAnimal();
+	// 		let currentPetCount = await petPark.animalCounts(AnimalType.Fish);
+	// 		currentPetCount = currentPetCount.toNumber();
 
-			expect(reducedPetCount).to.equal(currentPetCount - 1);
-		});
-	});
+	// 		expect(reducedPetCount).to.equal(currentPetCount - 1);
+	// 	});
+	// });
 });
