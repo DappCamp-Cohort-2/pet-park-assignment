@@ -32,6 +32,7 @@ contract PetPark is Ownable {
     struct User {
         uint256 age;
         Gender gender;
+        Animal borrowingAnimal;
     }
 
     event Added(Animal _animal, uint256 _count);
@@ -39,8 +40,6 @@ contract PetPark is Ownable {
     event Returned(Animal _animal);
 
     mapping(Animal => uint256) public animalCounts;
-
-    mapping(address => Animal) private borrowing;
     mapping(address => User) private users;
 
     modifier validAnimal(Animal _animal, string memory errorMessage) {
@@ -66,13 +65,16 @@ contract PetPark is Ownable {
 
         User memory recordedUser = users[msg.sender];
         if (recordedUser.age == 0) {
-            users[msg.sender] = User(_age, _gender);
+            users[msg.sender] = User(_age, _gender, Animal.none);
         } else {
             require(recordedUser.age == _age, "Invalid Age");
             require(recordedUser.gender == _gender, "Invalid Gender");
         }
 
-        require(borrowing[msg.sender] == Animal.none, "Already adopted a pet");
+        require(
+            recordedUser.borrowingAnimal == Animal.none,
+            "Already adopted a pet"
+        );
 
         if (_gender == Gender.Male) {
             require(
@@ -88,17 +90,17 @@ contract PetPark is Ownable {
 
         require(animalCounts[_animal] > 0, "Selected animal not available");
         animalCounts[_animal]--;
-        borrowing[msg.sender] = _animal;
+        users[msg.sender].borrowingAnimal = _animal;
 
         emit Borrowed(_animal);
     }
 
     function giveBackAnimal() external {
-        Animal borrowed = borrowing[msg.sender];
+        Animal borrowed = users[msg.sender].borrowingAnimal;
         require(borrowed != Animal.none, "No borrowed pets");
 
+        users[msg.sender].borrowingAnimal = Animal.none;
         animalCounts[borrowed]++;
-        delete borrowing[msg.sender];
 
         emit Returned(borrowed);
     }
