@@ -26,15 +26,12 @@ contract PetPark is Ownable {
     }
 
     mapping(address => AnimalType) public borrowerAddressToAnimalType;
-
-    Animal[] animals;
-
-    constructor() {}
+    mapping(AnimalType => uint256) public AnimalTypeCount;
 
     function add(AnimalType _animalType, uint256 _count) public onlyOwner {
         require(_animalType != AnimalType.None, "Invalid animal");
 
-        animals.push(Animal({count: _count, animalType: _animalType}));
+        AnimalTypeCount[_animalType] += _count;
 
         emit Added(_animalType, _count);
     }
@@ -51,9 +48,6 @@ contract PetPark is Ownable {
             "Already adopted a pet"
         );
 
-        int256 _foundAnimalIndex = -1;
-        AnimalType _foundAnimalType;
-
         if (_gender == Gender.Male) {
             require(
                 _animalType == AnimalType.Dog || _animalType == AnimalType.Fish,
@@ -68,24 +62,29 @@ contract PetPark is Ownable {
             );
         }
 
-        // TODO: There will be issues here if there are duplicates of animal type
-        // ignoring for now
-        for (uint256 i = 0; i < animals.length; i++) {
-            if (animals[i].animalType == _animalType) {
-                // TODO: fix this mapping to be better
-                // _foundAnimalIndex = int256(i);
-                _foundAnimalType = _animalType;
-            }
-        }
-
-        // require(_foundAnimalIndex > -1, "Selected animal not available");
         require(
-            _foundAnimalType != AnimalType.None,
+            AnimalTypeCount[_animalType] > 0,
             "Selected animal not available"
         );
 
-        // TODO: issue where animal could be borrowed multiple times
-        // borrowerAddressToAnimalType[msg.sender] = _foundAnimalIndex;
-        borrowerAddressToAnimalType[msg.sender] = _foundAnimalType;
+        borrowerAddressToAnimalType[msg.sender] = _animalType;
+        AnimalTypeCount[_animalType] -= 1;
+    }
+
+    function giveBackAnimal() public {
+        require(
+            borrowerAddressToAnimalType[msg.sender] != AnimalType.None,
+            "No borrowed pets"
+        );
+
+        AnimalTypeCount[borrowerAddressToAnimalType[msg.sender]] += 1;
+    }
+
+    function animalCounts(AnimalType _animalType)
+        public
+        view
+        returns (uint256)
+    {
+        return AnimalTypeCount[_animalType];
     }
 }
