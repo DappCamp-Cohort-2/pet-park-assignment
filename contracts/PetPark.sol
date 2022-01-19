@@ -12,7 +12,6 @@ contract PetPark {
         uint8 animal_type;
     }
 
-    // Is there a better way to be explit about these mappings?
     mapping(uint8 => uint256) countByAnimalType;
     mapping(uint8 => bool) validAnimalType;
     mapping(address => Account) addressByAccount;
@@ -29,9 +28,7 @@ contract PetPark {
     }
 
     function add(uint8 animal_type, uint8 count) public {
-        if (msg.sender != owner) {
-            revert("Not an owner");
-        }
+        require(msg.sender == owner, "Not an owner");
         if (validAnimalType[animal_type] == false) {
             revert("Invalid animal type");
         }
@@ -39,36 +36,35 @@ contract PetPark {
         emit Added(animal_type, count);
     }
 
+    modifier validate_inputs(
+        uint8 age,
+        uint8 gender,
+        uint8 animal_type
+    ) {
+        require(age != 0, "Invalid Age");
+        require(validAnimalType[animal_type] != false, "Invalid animal type");
+        require(
+            countByAnimalType[animal_type] != 0,
+            "Selected animal not available"
+        );
+        _;
+    }
+
     function borrow(
         uint8 age,
         uint8 gender,
         uint8 animal_type
-    ) public {
+    ) public validate_inputs(age, gender, animal_type) {
         Account storage _account = addressByAccount[msg.sender];
-        if (age == 0) {
-            revert("Invalid Age");
-        }
-        if (validAnimalType[animal_type] == false) {
-            revert("Invalid animal type");
-        }
-        if (countByAnimalType[animal_type] == 0) {
-            revert("Selected animal not available");
-        }
         if (addressExists[msg.sender] == false) {
             // create a new account
             _account.age = age;
             _account.gender = gender;
             addressExists[msg.sender] = true;
         } else {
-            if (_account.age != age) {
-                revert("Invalid Age");
-            }
-            if (_account.gender != gender) {
-                revert("Invalid Gender");
-            }
-            if (_account.lease == true) {
-                revert("Already adopted a pet");
-            }
+            require(_account.age == age, "Invalid Age");
+            require(_account.gender == gender, "Invalid Gender");
+            require(_account.lease != true, "Already adopted a pet");
         }
         if (_account.gender == 0) {
             if ((animal_type != 1) && (animal_type != 3)) {
@@ -89,9 +85,7 @@ contract PetPark {
 
     function giveBackAnimal() public {
         Account storage _account = addressByAccount[msg.sender];
-        if (_account.lease == false) {
-            revert("No borrowed pets");
-        }
+        require(_account.lease != false, "No borrowed pets");
         uint8 _animal_type = _account.animal_type;
         countByAnimalType[_animal_type] += 1;
         _account.lease = false;
