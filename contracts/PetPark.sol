@@ -87,9 +87,11 @@ contract PetPark {
     }
 
     function borrow(uint age, uint gender, uint animalType) external validateAge(age) validateAnimalType(animalType, "Invalid animal type") validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
-        addressToAge[msg.sender] = age;
-        addressToGender[msg.sender] = gender;
-        hasSetAddressDetails[msg.sender] = true;
+        if (!hasSetAddressDetails[msg.sender]) {
+            addressToAge[msg.sender] = age;
+            addressToGender[msg.sender] = gender;
+            hasSetAddressDetails[msg.sender] = true;
+        }
         borrowedAnimalByAddress[msg.sender] = animalType;
         unborrowedAnimals[animalType] = unborrowedAnimals[animalType] - 1;
         emit Borrowed(animalType);
