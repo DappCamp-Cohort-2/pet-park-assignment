@@ -6,7 +6,7 @@ contract PetPark {
     address owner;
     // Park mapping access pattern: park[type] = count;
     mapping(uint => uint) private park;
-    mapping(address => bool) private currentBorrowers;
+    mapping(address => uint) private currentBorrowers;
     mapping(address => Borrower) private historicalBorrowers;
 
     struct Borrower {
@@ -27,7 +27,7 @@ contract PetPark {
         emit Added(_type, _count);
     }
 
-    function borrow(uint _age, uint _gender, uint _type) public notBorrowing validType(_type) {
+    function borrow(uint _age, uint _gender, uint _type) public validType(_type) {
         require(_age > 0, "Invalid Age");
         require(park[_type] > 0, "Selected animal not available");
         if(historicalBorrowers[msg.sender].age == 0 && historicalBorrowers[msg.sender].gender == 0) {
@@ -35,6 +35,7 @@ contract PetPark {
         }
         // Checks to make sure that the current address has not borrowed before with different age/gender
         checkHistoricalBorrowers(msg.sender, _age, _gender);
+        require(currentBorrowers[msg.sender] == 0, "Already adopted a pet");
 
         // Validate age and gender data
         if(_gender == 0) {
@@ -44,24 +45,24 @@ contract PetPark {
             require(_type != 2, "Invalid animal for women under 40");
         }
         park[_type] = park[_type] - 1;
-        currentBorrowers[msg.sender] = true;
+        currentBorrowers[msg.sender] = _type;
         emit Borrowed(_type);
     }
 
 
-    function giveBackAnimal(uint _type) public {
-        require(currentBorrowers[msg.sender], "No borrowed pets");
+    function giveBackAnimal() public {
+        require(isValid(currentBorrowers[msg.sender]), "No borrowed pets");
+
+        uint _type = currentBorrowers[msg.sender];
 
         park[_type] = park[_type] + 1;
-        currentBorrowers[msg.sender] = false;
+        currentBorrowers[msg.sender] = 0;
         emit Returned(_type);
     }
 
     function checkHistoricalBorrowers(address a, uint age, uint gender) private view {
-        if(historicalBorrowers[a].age != 0) {
-            require(historicalBorrowers[a].age == age, "Invalid Age");
-            require(historicalBorrowers[a].gender == gender, "Invalid Gender");
-        }
+        require(historicalBorrowers[a].age == age, "Invalid Age");
+        require(historicalBorrowers[a].gender == gender, "Invalid Gender");
     }
 
     function animalCounts(uint _type) public view returns(uint) {
@@ -73,13 +74,12 @@ contract PetPark {
          _;
     }
 
-    modifier notBorrowing {
-        require(!currentBorrowers[msg.sender], "Already adopted a pet");
-        _;
+    function isValid(uint _type) private pure returns(bool) {
+        return (_type >= 1 && _type <= 5);
     }
 
     modifier validType(uint _type) {
-        require(_type > 0 && _type <= 5, "Invalid animal");
+        require(_type >= 1 && _type <= 5, "Invalid animal type");
         _;
     }
 }
