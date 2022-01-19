@@ -13,8 +13,6 @@ contract PetPark {
         uint animalType;
     }
 
-    Animal[] private animals;
-
     mapping (uint => uint) unborrowedAnimals;
     mapping (address => uint) borrowedAnimalByAddress;
     mapping (address => AddressInfo) addressInfo;
@@ -33,8 +31,7 @@ contract PetPark {
     }
 
     modifier validateAnimalType(uint animalType, string memory errorMessage) {
-        require(animalType > 0, errorMessage);
-        require(animalType < 6, errorMessage);
+        require(animalType > 0 && animalType < 6, errorMessage);
         _;
     }
 
@@ -79,7 +76,6 @@ contract PetPark {
     }
 
     function _createAnimal(uint _animalType) private {
-        animals.push(Animal(_animalType));
         unborrowedAnimals[_animalType] = unborrowedAnimals[_animalType] + 1;
     }
 
@@ -90,10 +86,14 @@ contract PetPark {
         emit Added(animalType, count);
     }
 
+    function _setAddressInfo(uint _age, uint _gender) private {
+        addressInfo[msg.sender] = AddressInfo(_age, _gender);
+        hasSetAddressDetails[msg.sender] = true;
+    }
+
     function borrow(uint age, uint gender, uint animalType) external validateAge(age) validateAnimalType(animalType, "Invalid animal type") validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
         if (!hasSetAddressDetails[msg.sender]) {
-            addressInfo[msg.sender] = AddressInfo(age, gender);
-            hasSetAddressDetails[msg.sender] = true;
+            _setAddressInfo(age, gender);
         }
         borrowedAnimalByAddress[msg.sender] = animalType;
         unborrowedAnimals[animalType] = unborrowedAnimals[animalType] - 1;
