@@ -6,7 +6,7 @@ contract PetPark {
     enum AnimalType { NONE, FISH, CAT, DOG, RABBIT, PARROT }
     enum GenderType { MALE, FEMALE }
     mapping(AnimalType => uint) animals;
-    address public owner;
+    address public owner = msg.sender; // Set the transaction sender as the owner of the contract.
 
     struct Borrower {
         uint8 age;
@@ -21,9 +21,6 @@ contract PetPark {
     event Returned(AnimalType);
 
     function PerPark() public {
-        // Set the transaction sender as the owner of the contract.
-        owner = msg.sender;
-
         animals[AnimalType.FISH] = 0;
         animals[AnimalType.CAT] = 0;
         animals[AnimalType.DOG] = 0;
@@ -41,8 +38,10 @@ contract PetPark {
 
     function add(AnimalType _type, uint _count)
         public
-        onlyOwner        
     {
+        if(msg.sender != owner)
+            revert("Not an owner");
+
         if(_type == AnimalType.NONE)
             revert("Invalid animal");
 
@@ -65,12 +64,12 @@ contract PetPark {
         if(borrowers[msg.sender].age != 0)
             revert("Already adopted a pet");
 
-        if(borrowers[msg.sender].gender == GenderType.MALE) {
+        if(_gender == GenderType.MALE) {
             if(_type != AnimalType.DOG && _type != AnimalType.FISH)
                 revert("Invalid animal for men");
         }        
 
-        if(borrowers[msg.sender].gender == GenderType.FEMALE) {
+        if(_gender == GenderType.FEMALE) {
             if(borrowers[msg.sender].age < 40 && _type == AnimalType.CAT)
                 revert("Invalid animal for women under 40");
         }
@@ -98,5 +97,13 @@ contract PetPark {
         delete borrowers[msg.sender];
         animals[animal] += 1;
         emit Returned(animal); 
+    }
+
+    function animalCounts(AnimalType _type)
+        view 
+        public
+        returns (uint)
+    {
+        return animals[_type];
     }
 }
