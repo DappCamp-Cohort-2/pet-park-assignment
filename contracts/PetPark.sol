@@ -4,22 +4,36 @@ pragma solidity ^0.8.0;
 contract PetPark {
     address owner;
 
-    struct AddressInfo {
+    enum AnimalType { 
+        None, 
+        Fish, 
+        Cat, 
+        Dog, 
+        Rabbit, 
+        Parrot 
+    }
+
+    enum Gender { 
+        Male, 
+        Female 
+    }
+
+    struct AddressDetails {
         uint age;
-        uint gender;
+        Gender gender;
+        bool hasSetAddressDetails;
     }
 
     struct Animal {
-        uint animalType;
+        AnimalType animalType;
     }
 
-    mapping (uint => uint) unborrowedAnimals;
-    mapping (address => uint) borrowedAnimalByAddress;
-    mapping (address => AddressInfo) addressInfo;
-    mapping (address => bool) hasSetAddressDetails;
+    mapping (AnimalType => uint) unborrowedAnimals;
+    mapping (address => AnimalType) borrowedAnimalByAddress;
+    mapping (address => AddressDetails) addressDetails;
 
-    event Added(uint animalType, uint count);
-    event Borrowed(uint animalType);
+    event Added(AnimalType animalType, uint count);
+    event Borrowed(AnimalType animalType);
 
     constructor() {
         owner = msg.sender;
@@ -30,27 +44,34 @@ contract PetPark {
         _;
     }
 
-    modifier validateAnimalType(uint animalType, string memory errorMessage) {
-        require(animalType > 0 && animalType < 6, errorMessage);
+    modifier validateAnimalType(AnimalType animalType, string memory errorMessage) {
+        // Is there a cleaner way to do this?
+        require(
+            animalType == AnimalType.Fish || 
+            animalType == AnimalType.Cat || 
+            animalType == AnimalType.Dog || 
+            animalType == AnimalType.Rabbit || 
+            animalType == AnimalType.Parrot, errorMessage
+        );
         _;
     }
 
     modifier hasNotBorrowedAnimal() {
-        require(borrowedAnimalByAddress[msg.sender] == 0, "Already adopted a pet");
+        require(borrowedAnimalByAddress[msg.sender] == AnimalType.None, "Already adopted a pet");
         _;
     }
 
-    modifier validateAnimalTypeForBorrower(uint age, uint gender, uint animalType) {
-        if (gender == 0) {
-            require(animalType == 3 || animalType == 1, "Invalid animal for men");
+    modifier validateAnimalTypeForBorrower(uint age, Gender gender, AnimalType animalType) {
+        if (gender == Gender.Male) {
+            require(animalType == AnimalType.Fish || animalType == AnimalType.Dog, "Invalid animal for men");
         } else {
-            require(age > 40 || animalType != 2, "Invalid animal for women under 40");
+            require(age > 40 || animalType != AnimalType.Cat, "Invalid animal for women under 40");
         }
         _;
     }
 
-    modifier validateGender(uint gender) {
-        require(gender == 0 || gender == 1, "Invalid gender");
+    modifier validateGender(Gender gender) {
+        require(gender == Gender.Male || gender == Gender.Female, "Invalid gender");
         _;
     }
 
@@ -60,53 +81,52 @@ contract PetPark {
     }
 
     modifier hasBorrowedAnimal() {
-        require(borrowedAnimalByAddress[msg.sender] != 0, "No borrowed pets");
+        require(borrowedAnimalByAddress[msg.sender] != AnimalType.None, "No borrowed pets");
         _;
     }
     
-    modifier validateAnimalAvailable(uint animalType) {
+    modifier validateAnimalAvailable(AnimalType animalType) {
         require(unborrowedAnimals[animalType] != 0, "Selected animal not available");
         _;
     }
 
-    modifier validateOwnerDetails(uint age, uint gender) {
-        require(!hasSetAddressDetails[msg.sender] || addressInfo[msg.sender].age == age, "Invalid Age");
-        require(!hasSetAddressDetails[msg.sender] || addressInfo[msg.sender].gender == gender, "Invalid Gender");
+    modifier validateOwnerDetails(uint age, Gender gender) {
+        require(!addressDetails[msg.sender].hasSetAddressDetails || addressDetails[msg.sender].age == age, "Invalid Age");
+        require(!addressDetails[msg.sender].hasSetAddressDetails || addressDetails[msg.sender].gender == gender, "Invalid Gender");
         _;
     }
 
-    function _createAnimal(uint _animalType) private {
+    function _createAnimal(AnimalType _animalType) private {
         unborrowedAnimals[_animalType] = unborrowedAnimals[_animalType] + 1;
     }
 
-    function add(uint animalType, uint count) external onlyOwner validateAnimalType(animalType, "Invalid animal") {
+    function add(AnimalType animalType, uint count) external onlyOwner validateAnimalType(animalType, "Invalid animal") {
         for (uint i = 0; i < count; i++) {
             _createAnimal(animalType);
         }
         emit Added(animalType, count);
     }
 
-    function _setAddressInfo(uint _age, uint _gender) private {
-        addressInfo[msg.sender] = AddressInfo(_age, _gender);
-        hasSetAddressDetails[msg.sender] = true;
+    function _setAddressDetails(uint _age, Gender _gender) private {
+        addressDetails[msg.sender] = AddressDetails(_age, _gender, true);
     }
 
-    function borrow(uint age, uint gender, uint animalType) external validateAge(age) validateAnimalType(animalType, "Invalid animal type") validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
-        if (!hasSetAddressDetails[msg.sender]) {
-            _setAddressInfo(age, gender);
+    function borrow(uint age, Gender gender, AnimalType animalType) external validateAge(age) validateAnimalType(animalType, "Invalid animal type") validateAnimalAvailable(animalType) validateOwnerDetails(age, gender) hasNotBorrowedAnimal validateAnimalTypeForBorrower(age, gender, animalType) validateGender(gender) {
+        if (!addressDetails[msg.sender].hasSetAddressDetails) {
+            _setAddressDetails(age, gender);
         }
         borrowedAnimalByAddress[msg.sender] = animalType;
         unborrowedAnimals[animalType] = unborrowedAnimals[animalType] - 1;
         emit Borrowed(animalType);
     }
 
-    function animalCounts(uint animalType) external view returns(uint) {
+    function animalCounts(AnimalType animalType) external view returns(uint) {
         return unborrowedAnimals[animalType];
     }
 
     function giveBackAnimal() external hasBorrowedAnimal {
-        uint animalType = borrowedAnimalByAddress[msg.sender];
-        borrowedAnimalByAddress[msg.sender] = 0;
+        AnimalType animalType = borrowedAnimalByAddress[msg.sender];
+        borrowedAnimalByAddress[msg.sender] = AnimalType.None;
         unborrowedAnimals[animalType] = unborrowedAnimals[animalType] + 1;
     }
 }
