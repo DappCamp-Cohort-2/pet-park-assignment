@@ -39,13 +39,13 @@ contract PetPark {
         owner = msg.sender;
     }
 
-    function add(AnimalType _animalType, uint _count) public onlyOwner {
+    function add(AnimalType _animalType, uint _count) external onlyOwner {
         require(_animalType != AnimalType.None, "Invalid animal");
         animalCounts[_animalType] += _count;
         emit Added(_animalType, _count);
     }
 
-    function borrow(uint _age, Gender _gender, AnimalType _animalType) public {
+    function borrow(uint _age, Gender _gender, AnimalType _animalType) external {
         require(_age > 0, "Invalid Age");
         if (_gender == Gender.Female && _age < 40) {
             require(_animalType != AnimalType.Cat, "Invalid animal for women under 40");
@@ -70,7 +70,7 @@ contract PetPark {
         emit Borrowed(_animalType);
     }
 
-    function giveBackAnimal() public {
+    function giveBackAnimal() external {
         AnimalType loanedAnimal = loanedAnimals[msg.sender];
         require(loanedAnimal != AnimalType.None, "No borrowed pets");
         loanedAnimals[msg.sender] = AnimalType.None;
