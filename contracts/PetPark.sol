@@ -41,6 +41,8 @@ contract PetPark {
         require(_age > 0, "Invalid Age");
         require(_animal != AnimalType.None, "Invalid animal type");
         require(petsInThePark[_animal] > 0, "Selected animal not available");
+
+
         if (_gender == Gender.Male) {
                 require(_animal == AnimalType.Fish || _animal == AnimalType.Dog, "Invalid animal for men");
             } else {
@@ -48,21 +50,26 @@ contract PetPark {
                 require(_animal != AnimalType.Cat, "Invalid animal for women under 40");
                 }
             } 
-
         require(personThatBorrowed[msg.sender].animal == AnimalType.None, "Already adopted a pet");
+
+        if(petsInThePark[personThatBorrowed[msg.sender].animal] != 0){
+            require(personThatBorrowed[msg.sender].age == _age, "Invalid Age");
+            require(personThatBorrowed[msg.sender].gender == _gender, "Invalid Gender");
+        }
         
         petsInThePark[_animal] -= 1;
-        require(personThatBorrowed[msg.sender].age == _age, "Invalid Age");
-        require(personThatBorrowed[msg.sender].gender == _gender, "Invalid Gender");
         emit Borrowed(_animal);
     }
     function giveBackAnimal() external {
         require(personThatBorrowed[msg.sender].animal != AnimalType.None, "No borrowed pets");
-        petsInThePark[personThatBorrowed[msg.sender].animal] +=1;
+
+        petsInThePark[personThatBorrowed[msg.sender].animal] += 1;
         
         personThatBorrowed[msg.sender].animal = AnimalType.None;
         emit Returned(personThatBorrowed[msg.sender].animal);
     }
+
+    
 
     function animalCounts(AnimalType _animal) external view returns(uint) {
         return  petsInThePark[_animal];
