@@ -50,13 +50,14 @@ contract PetPark {
                 require(_animal != AnimalType.Cat, "Invalid animal for women under 40");
                 }
             } 
-        require(personThatBorrowed[msg.sender].animal == AnimalType.None, "Already adopted a pet");
 
         if(petsInThePark[personThatBorrowed[msg.sender].animal] != 0){
             require(personThatBorrowed[msg.sender].age == _age, "Invalid Age");
             require(personThatBorrowed[msg.sender].gender == _gender, "Invalid Gender");
         }
+        require(personThatBorrowed[msg.sender].animal == AnimalType.None, "Already adopted a pet");
         
+        personThatBorrowed[msg.sender].animal = _animal;
         petsInThePark[_animal] -= 1;
         emit Borrowed(_animal);
     }
