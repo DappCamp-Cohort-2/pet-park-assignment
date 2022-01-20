@@ -41,13 +41,13 @@ contract PetPark {
         require(_age > 0, "Invalid Age");
         require(_animal != AnimalType.None, "Invalid animal type");
         require(petsInThePark[_animal] > 0, "Selected animal not available");
-        
-        require(personThatBorrowed[msg.sender].animal == AnimalType.None, "Already adopted a pet");
 
-        if(petsInThePark[personThatBorrowed[msg.sender].animal] != 0){
+
+        if(personThatBorrowed[msg.sender].animal != AnimalType.None){
             require(personThatBorrowed[msg.sender].age == _age, "Invalid Age");
             require(personThatBorrowed[msg.sender].gender == _gender, "Invalid Gender");
         }
+        require(personThatBorrowed[msg.sender].animal == AnimalType.None, "Already adopted a pet");
 
         if (_gender == Gender.Male) {
                 require(_animal == AnimalType.Fish || _animal == AnimalType.Dog, "Invalid animal for men");
@@ -59,6 +59,8 @@ contract PetPark {
 
         
         personThatBorrowed[msg.sender].animal = _animal;
+        personThatBorrowed[msg.sender].age = _age;
+        personThatBorrowed[msg.sender].gender = _gender;
         petsInThePark[_animal] -= 1;
         emit Borrowed(_animal);
     }
