@@ -20,7 +20,7 @@ contract PetPark {
         AnimalType borrowedAnimal;
     }
     address owner;
-    mapping(AnimalType => uint256) animalsInShelter;
+    mapping(AnimalType => uint256) public animalCounts;
     mapping(address => BorrowerProfile) borrowerProfiles;
 
     event Added(AnimalType indexed _animalType, uint256 count);
@@ -46,7 +46,7 @@ contract PetPark {
         onlyValidAnimal(_animalType)
     {
         require(_animalType != AnimalType.None, "Invalid animal type");
-        animalsInShelter[_animalType] = _count;
+        animalCounts[_animalType] = _count;
         emit Added(_animalType, _count);
     }
 
@@ -67,11 +67,8 @@ contract PetPark {
             borrowerProfiles[msg.sender].borrowedAnimal == AnimalType.None,
             "Already adopted a pet"
         );
-        require(
-            animalsInShelter[_animalType] > 0,
-            "Selected animal not available"
-        );
-        require(animalsInShelter[_animalType] > 0, "Animal not available");
+        require(animalCounts[_animalType] > 0, "Selected animal not available");
+        require(animalCounts[_animalType] > 0, "Animal not available");
 
         if (_gender == Gender.Male) {
             require(
@@ -87,7 +84,7 @@ contract PetPark {
             }
         }
 
-        animalsInShelter[_animalType] -= 1;
+        animalCounts[_animalType] -= 1;
         borrowerProfiles[msg.sender] = BorrowerProfile({
             age: _age,
             gender: _gender,
@@ -103,15 +100,7 @@ contract PetPark {
             "No borrowed pets"
         );
 
-        animalsInShelter[borrowerProfiles[msg.sender].borrowedAnimal] += 1;
+        animalCounts[borrowerProfiles[msg.sender].borrowedAnimal] += 1;
         borrowerProfiles[msg.sender].borrowedAnimal = AnimalType.None;
-    }
-
-    function animalCounts(AnimalType _animalType)
-        external
-        view
-        returns (uint256)
-    {
-        return animalsInShelter[_animalType];
     }
 }
