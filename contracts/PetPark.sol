@@ -14,7 +14,7 @@ contract PetPark {
     Rabbit,
     Parrot
   }
-  mapping(AnimalType => uint) animalsInShelter;
+  mapping(AnimalType => uint) public animalsInShelter;
   enum Gender {
     Male,
     Female
