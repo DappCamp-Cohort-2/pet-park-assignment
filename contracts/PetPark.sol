@@ -26,7 +26,7 @@ contract PetPark {
     bool visited;
   }
   mapping(address => Borrower) borrowers;
-  
+
   event Added(AnimalType _animalType, uint _count);
   event Borrowed(AnimalType _animalType);
   event Returned(AnimalType _animalType);
@@ -41,7 +41,7 @@ contract PetPark {
     _;
   }
 
-  function add(AnimalType _animalType, uint _count) public isOwner() {
+  function add(AnimalType _animalType, uint _count) external isOwner() {
     if(_animalType < AnimalType.Fish || _animalType > AnimalType.Parrot)
       revert("Invalid animal");
 
