@@ -44,9 +44,10 @@ contract PetPark {
 
     }
     
-    function animalCounts(AnimalType pet) public{
-        animal_counts[pet];
+    function animalCounts(AnimalType pet) public view returns(uint) {
+        return animal_counts[pet];
     }
+    
     function add(AnimalType pet, uint count) public {
         require(    msg.sender == owner,"Not an owner");
         require(    pet != AnimalType.None,"Invalid animal" );
