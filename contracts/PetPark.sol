@@ -1,6 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
 
 contract PetPark {
 
@@ -18,12 +19,14 @@ contract PetPark {
     Male,
     Female
   }
-  mapping(address => Gender) genders;
-  mapping(address => uint) ages;
-  mapping(address => bool) borrowed;
-  mapping(address => AnimalType) borrowedAnimalType;
-  mapping(address => bool) returning;
-
+  struct Borrower {
+    Gender gender;
+    uint age;
+    AnimalType borrowed;
+    bool visited;
+  }
+  mapping(address => Borrower) borrowers;
+  
   event Added(AnimalType _animalType, uint _count);
   event Borrowed(AnimalType _animalType);
   event Returned(AnimalType _animalType);
@@ -57,15 +60,15 @@ contract PetPark {
     if(animalsInShelter[_animalType] == 0)
       revert("Selected animal not available");
 
-    if(returning[msg.sender]) {
-      if(ages[msg.sender] != _age)
+    if(borrowers[msg.sender].visited) {
+      if(borrowers[msg.sender].age != _age)
         revert("Invalid Age");
       
-      if(genders[msg.sender] != _gender)
+      if(borrowers[msg.sender].gender != _gender)
         revert("Invalid Gender");
     }
     
-    if(borrowed[msg.sender])
+    if(borrowers[msg.sender].borrowed != AnimalType.None)
       revert("Already adopted a pet");
 
     if(_gender == Gender.Male && _animalType != AnimalType.Dog && _animalType != AnimalType.Fish)
@@ -74,14 +77,13 @@ contract PetPark {
     if(_gender == Gender.Female && _age < 40 && _animalType == AnimalType.Cat)
       revert("Invalid animal for women under 40");
 
-    ages[msg.sender] = _age;
-    genders[msg.sender] = _gender;
-    returning[msg.sender] = true;
+    borrowers[msg.sender].age = _age;
+    borrowers[msg.sender].gender = _gender;
 
     animalsInShelter[_animalType] -= 1;
-    borrowed[msg.sender] = true;
-    borrowedAnimalType[msg.sender] = _animalType;
-    
+    borrowers[msg.sender].visited = true;
+    borrowers[msg.sender].borrowed = _animalType;
+
     emit Borrowed(_animalType);
   }
 
@@ -90,13 +92,12 @@ contract PetPark {
   }
 
   function giveBackAnimal() public {
-    if(!borrowed[msg.sender])
+    if(borrowers[msg.sender].borrowed == AnimalType.None)
       revert("No borrowed pets");
 
-    emit Returned(borrowedAnimalType[msg.sender]);
+    emit Returned(borrowers[msg.sender].borrowed);
 
-    animalsInShelter[borrowedAnimalType[msg.sender]]++;
-    borrowed[msg.sender] = false;
-    borrowedAnimalType[msg.sender] = AnimalType.None;
+    animalsInShelter[borrowers[msg.sender].borrowed]++;
+    borrowers[msg.sender].borrowed = AnimalType.None;
   }
 }
