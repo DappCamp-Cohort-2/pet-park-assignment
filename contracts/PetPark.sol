@@ -44,7 +44,7 @@ contract PetPark {
 
     }
     
-    function animalCounts(AnimalType pet) public view returns(uint) {
+   function animalCounts(AnimalType pet) public view returns(uint) {
         return animal_counts[pet];
     }
     
@@ -98,7 +98,7 @@ contract PetPark {
     function giveBackAnimal() public {
         require(calls[msg.sender] > 0, "No borrowed pets");
         emit Returned(bcalls[msg.sender]);
-        animal_counts[bcalls[msg.sender]] -= 1 ;
+        animal_counts[bcalls[msg.sender]] += 1 ;
         bcalls[msg.sender] = AnimalType.None;
     }
 
