@@ -14,7 +14,7 @@ contract PetPark {
     Rabbit,
     Parrot
   }
-  mapping(AnimalType => uint) public animalsInShelter;
+  mapping(AnimalType => uint) public animalCounts;
   enum Gender {
     Male,
     Female
@@ -45,7 +45,7 @@ contract PetPark {
     if(_animalType < AnimalType.Fish || _animalType > AnimalType.Parrot)
       revert("Invalid animal");
 
-    animalsInShelter[_animalType] += _count;
+    animalCounts[_animalType] += _count;
 
     emit Added(_animalType, _count);
   }
@@ -57,7 +57,7 @@ contract PetPark {
     if(_animalType == AnimalType.None || _animalType > AnimalType.Parrot)
       revert("Invalid animal type");
 
-    if(animalsInShelter[_animalType] == 0)
+    if(animalCounts[_animalType] == 0)
       revert("Selected animal not available");
 
     if(borrowers[msg.sender].visited) {
@@ -80,15 +80,11 @@ contract PetPark {
     borrowers[msg.sender].age = _age;
     borrowers[msg.sender].gender = _gender;
 
-    animalsInShelter[_animalType] -= 1;
+    animalCounts[_animalType] -= 1;
     borrowers[msg.sender].visited = true;
     borrowers[msg.sender].borrowed = _animalType;
 
     emit Borrowed(_animalType);
-  }
-
-  function animalCounts(AnimalType _animalType) public view returns(uint count) {
-    return animalsInShelter[_animalType];
   }
 
   function giveBackAnimal() public {
@@ -97,7 +93,7 @@ contract PetPark {
 
     emit Returned(borrowers[msg.sender].borrowed);
 
-    animalsInShelter[borrowers[msg.sender].borrowed]++;
+    animalCounts[borrowers[msg.sender].borrowed]++;
     borrowers[msg.sender].borrowed = AnimalType.None;
   }
 }
