@@ -78,7 +78,7 @@ contract PetPark {
 	}
 
 	function add(uint256 _animal_type_num, uint256 _animal_type_count)
-		public
+		external
 		isValidAnimalType(_animal_type_num)
 	{
 		require(msg.sender == m_owner, "Not an owner");
