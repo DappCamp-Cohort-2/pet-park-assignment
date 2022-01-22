@@ -2,11 +2,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract PetPark {
-	// common interfaces
-	using Counters for Counters.Counter;
 
 	enum AnimalType {
 		None,
@@ -45,7 +42,7 @@ contract PetPark {
 
 	mapping(address => Borrower) m_borrower_attributes;
 
-	Counters.Counter private m_animal_id;
+	uint256 private m_animal_id = 0;
 	mapping(uint256 => Animal) private m_id_to_animal;
 	mapping(AnimalType => uint256) private m_animal_to_count;
 	mapping(AnimalType => uint256) private m_animal_to_borrowed_count;
@@ -87,10 +84,9 @@ contract PetPark {
 
 		for (uint256 i = 0; i < _animal_type_count; i++) {
 			// init animal and add to map
-			m_animal_id.increment();
-			uint256 animal_id = m_animal_id.current();
-			m_id_to_animal[animal_id] = Animal({
-				id: animal_id,
+			m_animal_id++;
+			m_id_to_animal[m_animal_id] = Animal({
+				id: m_animal_id,
 				animal_type: _animal_type
 			});
 
