@@ -80,22 +80,15 @@ contract PetPark {
 	{
 		require(msg.sender == m_owner, "Not an owner");
 
-		AnimalType _animal_type = AnimalType(_animal_type_num);
+		// update count for this animal type
+		AnimalType animal_type = AnimalType(_animal_type_num);
+		m_animal_to_count[animal_type] = m_animal_to_count[animal_type] + _animal_type_count;
 
-		for (uint256 i = 0; i < _animal_type_count; i++) {
-			// init animal and add to map
-			m_animal_id++;
-			m_id_to_animal[m_animal_id] = Animal({
-				id: m_animal_id,
-				animal_type: _animal_type
-			});
-
-			// update the count for this animal type
-			m_animal_to_count[_animal_type]++;
-		}
+		// update total count of animals
+		m_animal_id += _animal_type_count;
 
 		// emit added event
-		emit Added(_animal_type, _animal_type_count);
+		emit Added(animal_type, _animal_type_count);
 	}
 
 	function borrow(
