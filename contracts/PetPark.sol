@@ -25,11 +25,6 @@ contract PetPark {
 		AnimalType animal_type;
 	}
 
-	struct Animal {
-		uint256 id;
-		AnimalType animal_type;
-	}
-
 	// events
 	event Added(AnimalType, uint256);
 
@@ -43,7 +38,6 @@ contract PetPark {
 	mapping(address => Borrower) m_borrower_attributes;
 
 	uint256 private m_animal_id = 0;
-	mapping(uint256 => Animal) private m_id_to_animal;
 	mapping(AnimalType => uint256) private m_animal_to_count;
 	mapping(AnimalType => uint256) private m_animal_to_borrowed_count;
 
