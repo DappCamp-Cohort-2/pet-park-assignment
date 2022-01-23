@@ -40,18 +40,18 @@ contract PetPark {
 
     //modifiers
     modifier onlyOwner(){
-        require(owner == msg.sender, "Only contract owner allowed!");
+        require(owner == msg.sender, "Not an owner");
         _;
     }
 
     modifier validAnimal(AnimalType _animalType){
-        require(_animalType >= AnimalType.None && _animalType<=AnimalType.Rabbit, "invalid animal type!");
+        require(_animalType >= AnimalType.None && _animalType<=AnimalType.Rabbit, "Invalid animal type");
         _;
     }
 
     //functions 
     function add(AnimalType _animalType, uint _count) public onlyOwner validAnimal(_animalType){
-        require(_count > 0, "Count should be great than zero");
+        require(_count > 0, "Count should be positive");
 
         animalCounts[_animalType] +=  _count;
         emit Added(_animalType, _count);
@@ -60,17 +60,17 @@ contract PetPark {
 
     function borrow(uint8 _age, Gender _gender, AnimalType _animalType) external validAnimal(_animalType){
         Borrower memory borrower = borrowers[msg.sender];
-        require(_age > 0, "invalid age");
-        require(borrower.age == _age, "invalid age");
-        require(borrower.gender == _gender, "invalid gender");
+        require(_age > 0, "Invalid Age");
+        require(borrower.age == _age, "Invalid Age");
+        require(borrower.gender == _gender, "Invalid Gender");
         require(borrowedAnimals[msg.sender] == AnimalType.None, "Already adopted a pet");
-        require(animalCounts[_animalType]>0, "selected animial not available");
+        require(animalCounts[_animalType]>0, "Selected animal not available");
     
         
         if (_gender == Gender.Male)
-            require(_animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "men can borrow cat and fisth only");
+            require(_animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "Invalid animal for men");
         else if (_gender == Gender.Female && _age < 40)
-            require( _animalType != AnimalType.Cat, "woman below 40 can't boorow cat");
+            require( _animalType != AnimalType.Cat, "Invalid animal for women under 40");
 
         borrowers[msg.sender] = Borrower(_age, _gender);
         animalCounts[_animalType]--;
