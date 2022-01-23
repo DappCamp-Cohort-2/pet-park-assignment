@@ -110,11 +110,14 @@ describe("PetPark", function () {
 					.borrow(24, Gender.Male, AnimalType.Fish)
 			).to.be.revertedWith("Already adopted a pet");
 
+            //Nagesh - corrected the expected value as Men are allowed to
+			// borrow Fish and Dog only.    
+
 			await expect(
 				petPark
 					.connect(account1)
 					.borrow(24, Gender.Male, AnimalType.Cat)
-			).to.be.revertedWith("Already adopted a pet");
+			).to.be.revertedWith("Invalid animal for men");
 		});
 
 		it("should revert when address details do not match from previous calls", async function () {
