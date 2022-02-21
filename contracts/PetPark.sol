@@ -46,13 +46,13 @@ contract PetPark {
 
     function borrow(uint _age, Gender _gender, AnimalType _animalType) public isValidAnimalType(_animalType) {
         require(_age > 0, "Invalid Age");
-        require(borrowerInfo[msg.sender].gender == _gender || borrowerInfo[msg.sender].age == 0, "Invalid gender.");
-        require(borrowerInfo[msg.sender].age == _age || borrowerInfo[msg.sender].age == 0, "Invalid age.");
+        require(borrowerInfo[msg.sender].gender == _gender || borrowerInfo[msg.sender].age == 0, "Invalid Gender.");
+        require(borrowerInfo[msg.sender].age == _age || borrowerInfo[msg.sender].age == 0, "Invalid Age.");
         require(petPark[_animalType] > 0, "Selected animal not available");
-        require(borrowerAnimalType[msg.sender] == AnimalType.None, "Already borrowed a pet.");
+        require(borrowerAnimalType[msg.sender] == AnimalType.None, "Already adopted a pet.");
 
         if (_gender == Gender.Male) {
-            require(_animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "Invalid animal for Men.");
+            require (_animalType == AnimalType.Dog || _animalType == AnimalType.Fish, "Invalid animal for men.");
         }
 
         if (_gender == Gender.Female && _age < 40) {
@@ -84,9 +84,11 @@ contract PetPark {
         }
         _;
     }
-
+    // Using a function modifier for checking owner
     modifier onlyOwner() {
-        require(msg.sender == owner, "Not owner");
+        if (msg.sender != owner) {
+        revert("Not an owner");
+        }
         _;
     }
 
